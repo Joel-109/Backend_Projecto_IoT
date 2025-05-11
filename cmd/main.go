@@ -172,6 +172,7 @@ func createDish(ctx context.Context, repo *repository.Queries) func(w http.Respo
 			Description: dish.Description,
 			Price:       float64(dish.Price),
 			Image:       dish.Image,
+			IDCategory:  dish.IDCategory,
 		})
 	}
 }
@@ -419,9 +420,11 @@ func deleteInvoiceDish(ctx context.Context, repo *repository.Queries) func(w htt
 		err = repo.DeleteInvoiceDish(ctx, repository.DeleteInvoiceDishParams{
 			IDOrder: sql.NullInt64{
 				Int64: int64(id_order),
+				Valid: true,
 			},
 			IDDish: sql.NullInt64{
 				Int64: int64(id_dish),
+				Valid: true,
 			},
 		})
 
