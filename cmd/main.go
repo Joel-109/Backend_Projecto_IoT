@@ -53,7 +53,7 @@ func main() {
 	mux.HandleFunc("DELETE /invoice/dish/{order}/{id}", deleteInvoiceDish(ctx, repo))
 
 	fmt.Println("Server Listening to 8080")
-	http.ListenAndServe(":8080", mux)
+	http.ListenAndServe(":8080", corsMiddleware(mux))
 }
 
 func createInvoice(ctx context.Context, repo *repository.Queries) func(w http.ResponseWriter, r *http.Request) {
