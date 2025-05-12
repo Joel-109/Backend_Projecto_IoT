@@ -23,8 +23,11 @@ func (q *Queries) DeleteDish(ctx context.Context, idDish int64) error {
 
 const deleteInvoiceDish = `-- name: DeleteInvoiceDish :exec
 DELETE FROM Invoices 
-WHERE id_dish = ? AND
-id_order = ?
+WHERE rowid IN (
+  SELECT rowid FROM Invoices I
+  WHERE I.id_dish = ? AND I.id_order = ?
+  LIMIT 1
+)
 `
 
 type DeleteInvoiceDishParams struct {
@@ -258,18 +261,17 @@ func (q *Queries) InsertDish(ctx context.Context, arg InsertDishParams) error {
 }
 
 const insertInvoice = `-- name: InsertInvoice :exec
-INSERT INTO Invoices(id_order,id_dish,created_at)
-VALUES (?,?,?)
+INSERT INTO Invoices(id_order,id_dish)
+VALUES (?,?)
 `
 
 type InsertInvoiceParams struct {
-	IDOrder   sql.NullInt64
-	IDDish    sql.NullInt64
-	CreatedAt time.Time
+	IDOrder sql.NullInt64
+	IDDish  sql.NullInt64
 }
 
 func (q *Queries) InsertInvoice(ctx context.Context, arg InsertInvoiceParams) error {
-	_, err := q.db.ExecContext(ctx, insertInvoice, arg.IDOrder, arg.IDDish, arg.CreatedAt)
+	_, err := q.db.ExecContext(ctx, insertInvoice, arg.IDOrder, arg.IDDish)
 	return err
 }
 

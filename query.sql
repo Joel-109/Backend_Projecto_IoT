@@ -38,8 +38,8 @@ INSERT INTO Dish (description,name,image,price,id_category)
 VALUES (?,?,?,?,?);
 
 -- name: InsertInvoice :exec
-INSERT INTO Invoices(id_order,id_dish,created_at)
-VALUES (?,?,?);
+INSERT INTO Invoices(id_order,id_dish)
+VALUES (?,?);
 
 -- name: InsertStatus :exec
 INSERT INTO Status (id_status)
@@ -60,5 +60,8 @@ WHERE id_dish = ?;
 
 -- name: DeleteInvoiceDish :exec
 DELETE FROM Invoices 
-WHERE id_dish = ? AND
-id_order = ?;
+WHERE rowid IN (
+  SELECT rowid FROM Invoices I
+  WHERE I.id_dish = ? AND I.id_order = ?
+  LIMIT 1
+);
