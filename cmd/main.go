@@ -67,14 +67,8 @@ func createInvoice(ctx context.Context, repo *repository.Queries) func(w http.Re
 		}
 
 		repo.InsertInvoice(ctx, repository.InsertInvoiceParams{
-			IDOrder: sql.NullInt64{
-				Int64: int64(invoice.IDOrder),
-				Valid: true,
-			},
-			IDDish: sql.NullInt64{
-				Int64: int64(invoice.IDDish),
-				Valid: true,
-			},
+			IDOrder: int64(invoice.IDOrder),
+			IDDish:  int64(invoice.IDDish),
 		})
 	}
 }
@@ -186,33 +180,31 @@ func getInvoicesDishes(ctx context.Context, repo *repository.Queries) func(w htt
 			http.Error(w, "GET Invoices Error", 400)
 		}
 
-		dishes, err := repo.GetDishesInvoice(ctx, sql.NullInt64{
-			Int64: int64(id_order),
-			Valid: true,
-		})
+		dishes, err := repo.GetDishesInvoice(ctx, int64(id_order))
 		// D.name,D.image,D.description,D.price,D.id_category, O.id_order, O.id_desk, O.id_status
 		type InvoiceDishesResponse struct {
-			name        string  `json:"name"`
-			image       string  `json:"image"`
-			description string  `json:"description"`
-			price       float64 `json:"price"`
-			id_category string  `json:"category"`
-			id_desk     int64   `json:"id_desk"`
-			id_status   string  `json:"id_status"`
+			Name        string  `json:"name"`
+			Image       string  `json:"image"`
+			Description string  `json:"description"`
+			Price       float64 `json:"price"`
+			IDCategory  string  `json:"category"`
+			IDDesk      int64   `json:"id_desk"`
+			IDStatus    string  `json:"id_status"`
 		}
 
 		var response []InvoiceDishesResponse
 
 		for _, item := range dishes {
 			response = append(response, InvoiceDishesResponse{
-				name:        item.Name,
-				image:       item.Image,
-				description: item.Description,
-				price:       item.Price,
-				id_category: item.IDCategory,
-				id_desk:     item.IDDesk.Int64,
-				id_status:   item.IDStatus.String,
+				Name:        item.Name,
+				Image:       item.Image,
+				Description: item.Description,
+				Price:       item.Price,
+				IDCategory:  item.IDCategory,
+				IDDesk:      item.IDDesk.Int64,
+				IDStatus:    item.IDStatus.String,
 			})
+
 		}
 
 		data, err := json.Marshal(response)
@@ -273,13 +265,14 @@ func getInvoices(ctx context.Context, repo *repository.Queries) func(w http.Resp
 			IDDesk    int64     `json:"id_desk,omitempty"`
 			IDStatus  string    `json:"id_status,omitempty"`
 		}
+		fmt.Println("%v", invoices)
 
 		var response []OrderItemResponse
 
 		for _, item := range invoices {
 			response = append(response, OrderItemResponse{
-				IDOrder:   item.IDOrder.Int64,
-				IDDish:    item.IDDish.Int64,
+				IDOrder:   item.IDOrder,
+				IDDish:    item.IDDish,
 				CreatedAt: item.CreatedAt,
 				IDDesk:    item.IDDesk.Int64,
 				IDStatus:  item.IDStatus.String,
@@ -333,10 +326,7 @@ func getTotalInvoice(ctx context.Context, repo *repository.Queries) func(w http.
 	return func(w http.ResponseWriter, r *http.Request) {
 		id_order, err := strconv.Atoi(r.PathValue("id"))
 
-		total, err := repo.GetTotal(ctx, sql.NullInt64{
-			Int64: int64(id_order),
-			Valid: true,
-		})
+		total, err := repo.GetTotal(ctx, int64(id_order))
 
 		if err != nil {
 			http.Error(
@@ -418,14 +408,8 @@ func deleteInvoiceDish(ctx context.Context, repo *repository.Queries) func(w htt
 		}
 
 		err = repo.DeleteInvoiceDish(ctx, repository.DeleteInvoiceDishParams{
-			IDOrder: sql.NullInt64{
-				Int64: int64(id_order),
-				Valid: true,
-			},
-			IDDish: sql.NullInt64{
-				Int64: int64(id_dish),
-				Valid: true,
-			},
+			IDOrder: int64(id_order),
+			IDDish:  int64(id_dish),
 		})
 
 		if err != nil {

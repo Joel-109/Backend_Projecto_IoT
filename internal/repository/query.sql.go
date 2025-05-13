@@ -31,8 +31,8 @@ WHERE rowid IN (
 `
 
 type DeleteInvoiceDishParams struct {
-	IDDish  sql.NullInt64
-	IDOrder sql.NullInt64
+	IDDish  int64
+	IDOrder int64
 }
 
 func (q *Queries) DeleteInvoiceDish(ctx context.Context, arg DeleteInvoiceDishParams) error {
@@ -107,7 +107,7 @@ type GetDishesInvoiceRow struct {
 	IDStatus    sql.NullString
 }
 
-func (q *Queries) GetDishesInvoice(ctx context.Context, idOrder sql.NullInt64) ([]GetDishesInvoiceRow, error) {
+func (q *Queries) GetDishesInvoice(ctx context.Context, idOrder int64) ([]GetDishesInvoiceRow, error) {
 	rows, err := q.db.QueryContext(ctx, getDishesInvoice, idOrder)
 	if err != nil {
 		return nil, err
@@ -140,14 +140,15 @@ func (q *Queries) GetDishesInvoice(ctx context.Context, idOrder sql.NullInt64) (
 }
 
 const getInvoices = `-- name: GetInvoices :many
-SELECT i.id_order, id_dish, created_at, o.id_order, id_desk, id_status
-FROM Invoices I, Orders O
-WHERE I.id_order = O.id_order
+SELECT id_invoice, i.id_order, id_dish, created_at, o.id_order, id_desk, id_status
+FROM Invoices I
+JOIN Orders O ON I.id_order = O.id_order
 `
 
 type GetInvoicesRow struct {
-	IDOrder   sql.NullInt64
-	IDDish    sql.NullInt64
+	IDInvoice int64
+	IDOrder   int64
+	IDDish    int64
 	CreatedAt time.Time
 	IDOrder_2 int64
 	IDDesk    sql.NullInt64
@@ -164,6 +165,7 @@ func (q *Queries) GetInvoices(ctx context.Context) ([]GetInvoicesRow, error) {
 	for rows.Next() {
 		var i GetInvoicesRow
 		if err := rows.Scan(
+			&i.IDInvoice,
 			&i.IDOrder,
 			&i.IDDish,
 			&i.CreatedAt,
@@ -219,7 +221,7 @@ WHERE D.id_dish = I.id_dish
 AND I.id_order = ?
 `
 
-func (q *Queries) GetTotal(ctx context.Context, idOrder sql.NullInt64) (sql.NullFloat64, error) {
+func (q *Queries) GetTotal(ctx context.Context, idOrder int64) (sql.NullFloat64, error) {
 	row := q.db.QueryRowContext(ctx, getTotal, idOrder)
 	var sum sql.NullFloat64
 	err := row.Scan(&sum)
@@ -266,8 +268,8 @@ VALUES (?,?)
 `
 
 type InsertInvoiceParams struct {
-	IDOrder sql.NullInt64
-	IDDish  sql.NullInt64
+	IDOrder int64
+	IDDish  int64
 }
 
 func (q *Queries) InsertInvoice(ctx context.Context, arg InsertInvoiceParams) error {

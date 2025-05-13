@@ -4,8 +4,8 @@ FROM Dish;
 
 -- name: GetInvoices :many
 SELECT *
-FROM Invoices I, Orders O
-WHERE I.id_order = O.id_order;
+FROM Invoices I
+JOIN Orders O ON I.id_order = O.id_order;
 
 -- name: GetDishesInvoice :many
 SELECT D.name,D.image,D.description,D.price,D.id_category, O.id_order, O.id_desk, O.id_status

@@ -23,8 +23,9 @@ type Dish struct {
 }
 
 type Invoice struct {
-	IDOrder   sql.NullInt64
-	IDDish    sql.NullInt64
+	IDInvoice int64
+	IDOrder   int64
+	IDDish    int64
 	CreatedAt time.Time
 }
 

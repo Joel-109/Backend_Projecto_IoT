@@ -25,8 +25,8 @@ CREATE TABLE Orders(
 
 CREATE TABLE Invoices(
     id_invoice INTEGER PRIMARY KEY,
-    id_order INTEGER,
-    id_dish INTEGER,
+    id_order INTEGER NOT NULL,
+    id_dish INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_order) REFERENCES Orders(id_order),
     FOREIGN KEY (id_dish) REFERENCES Dish(id_dish)
